@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false"
+	monitoring="autodetect" dynamicConfig="true" name="CyberPlugfestCacheManager">
+
+	<defaultCache maxElementsInMemory="1000" eternal="false"
+		overflowToDisk="true" timeToIdleSeconds="1200" timeToLiveSeconds="1200">
+	</defaultCache>
+
+	<cache name="anomolies" eternal="true" maxEntriesLocalHeap="1000"
+		clearOnFlush="false" cacheLoaderTimeoutMillis="30000">
+		<terracotta consistency="eventual">
+			<nonstop immediateTimeout="false">
+				<!-- by default, exception on timeout behavior -->
+				<timeoutBehavior />
+			</nonstop>
+		</terracotta>
+	</cache>
+	<cache name="${hadoop.output.cache}" eternal="true" maxEntriesLocalHeap="1000"
+		clearOnFlush="false" cacheLoaderTimeoutMillis="30000">
+		<terracotta consistency="eventual">
+			<nonstop immediateTimeout="false">
+				<!-- by default, exception on timeout behavior -->
+				<timeoutBehavior />
+			</nonstop>
+		</terracotta>
+	</cache>
+	<cache name="posTransactionsCache" eternal="true"
+		maxEntriesLocalHeap="100000" cacheLoaderTimeoutMillis="30000">
+		<terracotta consistency="strong">
+			<nonstop immediateTimeout="false">
+				<!-- by default, exception on timeout behavior -->
+				<timeoutBehavior />
+			</nonstop>
+		</terracotta>
+	</cache>
+	<cache name="vendorGeoLocation" eternal="true"
+		maxEntriesLocalHeap="1000" clearOnFlush="false"
+		cacheLoaderTimeoutMillis="30000">
+		<terracotta consistency="eventual">
+			<nonstop immediateTimeout="false">
+				<!-- by default, exception on timeout behavior -->
+				<timeoutBehavior />
+			</nonstop>
+		</terracotta>
+	</cache>
+
+	<terracottaConfig rejoin="true" url="${terracotta.url}" />
+</ehcache>

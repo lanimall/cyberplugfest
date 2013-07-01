@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<context:annotation-config />
+
+	<context:property-placeholder location="classpath:application.properties" />
+
+	<context:component-scan base-package="org.terracotta.demo.cyberplugfest" />
+
+	<bean id="springApplicationContext" class="org.terracotta.demo.cyberplugfest.utils.SpringApplicationContext"/>
+
+	<!-- ####################################### -->
+	<!-- JMS Spring Beans -->
+	<!-- ####################################### -->
+
+	<!-- JNDI Environment Template -->
+	<bean id="jndiTemplate" class="org.springframework.jndi.JndiTemplate">
+		<property name="environment">
+			<props>
+				<prop key="java.naming.factory.initial">${jmsFactory}</prop>
+				<prop key="java.naming.provider.url">${jmsUrl}</prop>
+				<prop key="java.naming.security.authentication">simple</prop>
+				<prop key="java.naming.security.principal"></prop>
+				<prop key="java.naming.security.credentials"></prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- JMS Queue Template -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory">
+			<ref bean="cachedConnectionFactory" />
+		</property>
+		<property name="defaultDestination">
+			<ref bean="defaultDest" />
+		</property>
+		<property name="receiveTimeout">
+			<value>30000</value>
+		</property>
+	</bean>
+
+	<!-- A cached connection to wrap the ActiveMQ connection -->
+	<bean id="cachedConnectionFactory"
+		class="org.springframework.jms.connection.CachingConnectionFactory">
+		<property name="targetConnectionFactory">
+			<ref bean="SingleConnectionFactory" />
+		</property>
+		<property name="sessionCacheSize">
+			<value>10</value>
+		</property>
+	</bean>
+
+	<bean id="SingleConnectionFactory"
+		class="org.springframework.jms.connection.SingleConnectionFactory">
+		<property name="targetConnectionFactory" ref="jmsTopicConnectionFactory" />
+		<property name="reconnectOnException" value="true" />
+	</bean>
+
+	<!-- JMS Connection Factory -->
+	<bean id="jmsTopicConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiTemplate">
+			<ref bean="jndiTemplate" />
+		</property>
+		<property name="jndiName">
+			<value>${jmsConnectionFactory}</value>
+		</property>
+	</bean>
+
+	<bean id="defaultDest" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiTemplate">
+			<ref bean="jndiTemplate" />
+		</property>
+		<property name="jndiName">
+			<value>${jmsDestination}</value>
+		</property>
+	</bean>
+	
+	<bean id="eventPublisher" class="org.terracotta.demo.cyberplugfest.jms.EventPublisher">
+		<property name="messageCoordinator" ref="messageCoordinator" />
+	</bean>
+	
+	<bean id="messageCoordinator" class="org.terracotta.demo.cyberplugfest.jms.MessageCoordinator">
+		<property name="jmsTemplate" ref="jmsTemplate" />
+		<property name="destination" ref="defaultDest" />
+	</bean>
+</beans>

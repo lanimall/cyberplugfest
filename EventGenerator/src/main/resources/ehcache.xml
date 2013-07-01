@@ -1,0 +1,51 @@
+<ehcache     
+    name="CyberPlugfestCacheManager"     
+    updateCheck="false">    
+    
+    <defaultCache maxEntriesLocalHeap="0">   
+    </defaultCache>    
+    
+    <cache         
+        name="anomolies"         
+        eternal="true"         
+        maxEntriesLocalHeap="1000"         
+        clearOnFlush="false"         
+        cacheLoaderTimeoutMillis="30000">  
+        <terracotta>            
+            <nonstop/>        
+        </terracotta>    
+    </cache>    
+    
+    <cache         
+        name="vendorAvgSpend"         
+        eternal="true"         
+        maxEntriesLocalHeap="1000"         
+        clearOnFlush="false"         
+        cacheLoaderTimeoutMillis="30000">        
+        <terracotta>            
+            <nonstop/>        
+        </terracotta>    
+    </cache>    
+    <cache         
+        name="posTransactionsCache"         
+        eternal="true"         
+        maxEntriesLocalHeap="100000"         
+        cacheLoaderTimeoutMillis="30000">        
+        <terracotta             
+            consistency="STRONG">            
+            <nonstop/>        
+        </terracotta>    
+    </cache>    
+    <cache         
+        name="vendorGeoLocation"         
+        eternal="true"         
+        maxEntriesLocalHeap="1000"         
+        clearOnFlush="false"         
+        cacheLoaderTimeoutMillis="30000">        
+        <terracotta>            
+            <nonstop/>        
+        </terracotta>    
+    </cache>
+      
+    <terracottaConfig rejoin="true" url="ec2-107-22-170-219.compute-1.amazonaws.com:9510" />
+</ehcache>

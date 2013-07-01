@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:hdp="http://www.springframework.org/schema/hadoop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<context:property-placeholder location="classpath:application.properties" />
+
+	<hdp:configuration>
+		${hadoop.namenode.name}=${hadoop.namenode.value}
+		mapred.job.tracker=${hadoop.mapred.job.tracker}
+		bigmemory.output.cache=${hadoop.bigmemory.output.cache}
+		input.format.validtokens.count=9
+		input.format.vendorTokenIndex=3
+		input.format.transactionAmountIndex=2
+		mapred.map.tasks=8
+		mapred.compress.map.output=true
+		mapred.output.compression.type=BLOCK
+		mapred.map.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
+	</hdp:configuration>
+
+	<hdp:script id="preAction" language="javascript">
+		if
+		(fsh.test("${hadoop.output.path}")){
+		fsh.rmr("${hadoop.output.path}")
+		}
+	</hdp:script>
+
+	<hdp:script id="inputPaths" language="javascript" location="/listPathRecursive.js">
+		<hdp:property name="basepath" value="${hadoop.input.basepath}" />
+	</hdp:script>
+
+	<!-- input-format="org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat" -->
+	<hdp:job id="hdjob-BigMemory" jar-by-class="org.terracotta.pocs.cyberplugfest.Main"
+		input-format="org.apache.hadoop.mapreduce.lib.input.TextInputFormat"
+		output-format="org.terracotta.bigmemory.hadoop.BigmemoryOutputFormat"
+		input-path="${hadoop.input.path}" mapper="org.terracotta.pocs.cyberplugfest.WordMapper"
+		reducer="org.terracotta.pocs.cyberplugfest.WordReducerBigMemory"
+		files="file:////${user.home}/terracotta-license.key" />
+
+	<!-- input-format="org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat" -->
+	<hdp:job id="hdjob-standard" jar-by-class="org.terracotta.pocs.cyberplugfest.Main"
+		input-format="org.apache.hadoop.mapreduce.lib.input.TextInputFormat"
+		output-format="org.apache.hadoop.mapreduce.lib.output.TextOutputFormat"
+		input-path="${hadoop.input.path}" output-path="${hadoop.output.path}"
+		mapper="org.terracotta.pocs.cyberplugfest.WordMapper" reducer="org.terracotta.pocs.cyberplugfest.WordReducer" />
+
+	<hdp:job id="hdjob-vendoraverage" jar-by-class="org.terracotta.pocs.cyberplugfest.Main"
+		input-format="org.apache.hadoop.mapreduce.lib.input.TextInputFormat"
+		output-format="org.apache.hadoop.mapreduce.lib.output.TextOutputFormat"
+		input-path="${hadoop.input.path}" output-path="${hadoop.output.path}"
+		mapper="org.terracotta.pocs.cyberplugfest.VendorSalesAvgMapper"
+		reducer="org.terracotta.pocs.cyberplugfest.VendorSalesAvgReducer"
+		combiner="org.terracotta.pocs.cyberplugfest.VendorSalesAvgCombiner"
+		number-reducers="4" />
+
+	<hdp:job id="hdjob-vendoraverage-bm" jar-by-class="org.terracotta.pocs.cyberplugfest.Main"
+		input-format="org.apache.hadoop.mapreduce.lib.input.TextInputFormat"
+		output-format="org.terracotta.bigmemory.hadoop.BigmemoryOutputFormat"
+		input-path="${hadoop.input.path}" 
+		mapper="org.terracotta.pocs.cyberplugfest.VendorSalesAvgMapper"
+		combiner="org.terracotta.pocs.cyberplugfest.VendorSalesAvgCombiner"
+		reducer="org.terracotta.pocs.cyberplugfest.VendorSalesAvgReducerBigMemory"
+		files="file:////${user.home}/terracotta-license.key" number-reducers="4" />
+
+	<hdp:job-runner id="runner" run-at-startup="true"
+		pre-action="preAction" job-ref="hdjob-vendoraverage-bm" wait-for-completion="true" />
+</beans>
