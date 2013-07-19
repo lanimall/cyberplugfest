@@ -8,6 +8,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 public class VerifyBigmemoryData {
+	public static final String CACHENAME = "vendorAvgSpend";
+	
 	public static void main(String[] args) throws InterruptedException {
 
 		URL url = VerifyBigmemoryData.class.getResource("/ehcache.xml");
@@ -15,12 +17,12 @@ public class VerifyBigmemoryData {
 		
 		//vendorAvgSpend
 		
-		Cache cache = cacheManager.getCache("anomolies");
+		Cache cache = cacheManager.getCache(CACHENAME);
 
 		int count=0;
-		while(count++ < 10){
+		while(count++ < 5){
 			final List keyList = cache.getKeys();
-			System.out.println("\n\n Anomaly Data:" + keyList.size() + " entries");
+			System.out.println("\n\n " + CACHENAME + " Data:" + keyList.size() + " entries");
 			for (Object o : keyList) {
 				final Element element = cache.get(o);
 				System.out.print(element.getObjectKey());

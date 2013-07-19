@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<tc:tc-config xmlns:tc="http://www.terracotta.org/config"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.terracotta.org/schema/terracotta-6.xsd">
+
+	<servers>
+		<mirror-group group-name="MirrorGroup1">
+			<server host="localhost" name="Server1">
+				<data>%(user.home)/terracotta/server-data/localserver1</data>
+				<logs>%(user.home)/terracotta/server-logs/localserver1</logs>
+				<index>%(user.home)/terracotta/index/localserver1</index>
+				<tsa-port bind="localhost">9510</tsa-port>
+				<jmx-port bind="localhost">9520</jmx-port>
+				<tsa-group-port bind="localhost">9530</tsa-group-port>
+				<offheap>
+					<enabled>true</enabled>
+					<maxDataSize>1G</maxDataSize>
+				</offheap>
+			</server>
+			<!--
+			This is for a second server running as a mirror to Server1. Not required for development.
+			<server host="localhost" name="Server2">
+				<data>%(user.home)/terracotta/server-data/localserver2</data>
+				<logs>%(user.home)/terracotta/server-logs/localserver2</logs>
+				<index>%(user.home)/terracotta/index/localserver2</index>
+				<tsa-port bind="localhost">9610</tsa-port>
+				<jmx-port bind="localhost">9620</jmx-port>
+				<tsa-group-port bind="localhost">9630</tsa-group-port>
+				<offheap>
+					<enabled>true</enabled>
+					<maxDataSize>1G</maxDataSize>
+				</offheap>
+			</server>
+			-->
+		</mirror-group>
+		<garbage-collection>
+			<enabled>true</enabled>
+			<verbose>false</verbose>
+			<interval>600</interval>
+		</garbage-collection>
+		<restartable enabled="false" />
+		<client-reconnect-window>120</client-reconnect-window>
+	</servers>
+	
+	<!-- Sets where the generated client logs are saved on clients. Note that 
+		the exact location of Terracotta logs on client machines may vary based on 
+		the value of user.home and the local disk layout. -->
+	<clients>
+		<logs>%(user.home)/terracotta/client-logs/%D</logs>
+	</clients>
+</tc:tc-config>

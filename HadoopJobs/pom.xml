@@ -12,19 +12,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-data.version>1.0.0.RELEASE</spring-data.version>
 		<bigmemory.hadoop.version>0.1</bigmemory.hadoop.version>
-
-		<ehcache-core-ee.version>2.6.3</ehcache-core-ee.version>
-		<ehcache-terracotta-ee.version>2.6.3</ehcache-terracotta-ee.version>
-
-		<!-- <bigmemory.version>4.0.1</bigmemory.version> <ehcache-ee.version>2.7.1</ehcache-ee.version> 
-			<toolkit.version>4.0.1</toolkit.version> -->
-
-		<!-- <bigmemory.version>4.1.0-SNAPSHOT</bigmemory.version> <ehcache-ee.version>2.8.0-SNAPSHOT</ehcache-ee.version> 
-			<toolkit.version>4.1.0-SNAPSHOT</toolkit.version> -->
-
-		<slf4j.version>1.6.1</slf4j.version>
 		<hadoop.version>1.1.2</hadoop.version>
 		<mrunit.version>0.9.0-incubating</mrunit.version>
+		<slf4j.version>1.6.6</slf4j.version>
 	</properties>
 
 	<dependencies>
@@ -51,25 +41,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
-		<!-- EhCache -->
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core-ee</artifactId>
-			<version>${ehcache-core-ee.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-terracotta-ee</artifactId>
-			<version>${ehcache-terracotta-ee.version}</version>
-		</dependency>
-
-		<!-- <dependency> <groupId>org.terracotta.bigmemory</groupId> <artifactId>bigmemory</artifactId> 
-			<version>${bigmemory.version}</version> </dependency> <dependency> <groupId>net.sf.ehcache</groupId> 
-			<artifactId>ehcache-ee</artifactId> <version>${ehcache-ee.version}</version> 
-			</dependency> <dependency> <groupId>org.terracotta</groupId> <artifactId>terracotta-toolkit-runtime-ee</artifactId> 
-			<version>${toolkit.version}</version> </dependency> -->
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -136,7 +107,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.mrunit</groupId>
 			<artifactId>mrunit</artifactId>
@@ -174,7 +145,6 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
-			<!-- -Dcom.tc.productkey.path=${user.home}/terracotta-license-4.key -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
@@ -205,7 +175,61 @@
 
 	<profiles>
 		<profile>
-			<id>dev</id>
+			<id>terracotta37x-dev</id>
+			<properties>
+				<namenode.name>fs.default.name</namenode.name>
+				<namenode.value>hdfs://localhost:9000/</namenode.value>
+				<mapred.job.tracker>localhost:9001</mapred.job.tracker>
+				<hadoop.output.cache>vendorAvgSpend</hadoop.output.cache>
+				<terracotta.url>localhost:9510</terracotta.url>
+
+				<ehcache-core-ee.version>2.6.4</ehcache-core-ee.version>
+				<ehcache-terracotta-ee.version>2.6.4</ehcache-terracotta-ee.version>
+			</properties>
+			<dependencies>
+				<!-- EhCache -->
+				<dependency>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-core-ee</artifactId>
+					<version>${ehcache-core-ee.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-terracotta-ee</artifactId>
+					<version>${ehcache-terracotta-ee.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>terracotta37x-prod</id>
+			<properties>
+				<namenode.name>fs.default.name</namenode.name>
+				<namenode.value>hdfs://ec2-107-22-170-219.compute-1.amazonaws.com:9000/</namenode.value>
+				<mapred.job.tracker>ec2-107-22-170-219.compute-1.amazonaws.com:9001</mapred.job.tracker>
+				<hadoop.output.cache>vendorAvgSpend</hadoop.output.cache>
+				<terracotta.url>ec2-107-22-170-219.compute-1.amazonaws.com:9510</terracotta.url>
+
+				<ehcache-core-ee.version>2.6.4</ehcache-core-ee.version>
+				<ehcache-terracotta-ee.version>2.6.4</ehcache-terracotta-ee.version>
+			</properties>
+			<dependencies>
+				<!-- EhCache -->
+				<dependency>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-core-ee</artifactId>
+					<version>${ehcache-core-ee.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-terracotta-ee</artifactId>
+					<version>${ehcache-terracotta-ee.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>terracotta4x-dev</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
@@ -215,17 +239,59 @@
 				<mapred.job.tracker>localhost:9001</mapred.job.tracker>
 				<hadoop.output.cache>vendorAvgSpend</hadoop.output.cache>
 				<terracotta.url>localhost:9510</terracotta.url>
+
+				<bigmemory.version>4.0.2</bigmemory.version>
+				<ehcache-ee.version>2.7.2</ehcache-ee.version>
+				<toolkit.version>4.0.2</toolkit.version>
 			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.terracotta.bigmemory</groupId>
+					<artifactId>bigmemory</artifactId>
+					<version>${bigmemory.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-ee</artifactId>
+					<version>${ehcache-ee.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.terracotta</groupId>
+					<artifactId>terracotta-toolkit-runtime-ee</artifactId>
+					<version>${toolkit.version}</version>
+				</dependency>
+			</dependencies>
 		</profile>
 		<profile>
-			<id>prod</id>
+			<id>terracotta4x-prod</id>
 			<properties>
 				<namenode.name>fs.default.name</namenode.name>
 				<namenode.value>hdfs://ec2-107-22-170-219.compute-1.amazonaws.com:9000/</namenode.value>
 				<mapred.job.tracker>ec2-107-22-170-219.compute-1.amazonaws.com:9001</mapred.job.tracker>
 				<hadoop.output.cache>vendorAvgSpend</hadoop.output.cache>
 				<terracotta.url>ec2-107-22-170-219.compute-1.amazonaws.com:9510</terracotta.url>
+
+				<bigmemory.version>4.0.2</bigmemory.version>
+				<ehcache-ee.version>2.7.2</ehcache-ee.version>
+				<toolkit.version>4.0.2</toolkit.version>
 			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.terracotta.bigmemory</groupId>
+					<artifactId>bigmemory</artifactId>
+					<version>${bigmemory.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-ee</artifactId>
+					<version>${ehcache-ee.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.terracotta</groupId>
+					<artifactId>terracotta-toolkit-runtime-ee</artifactId>
+					<version>${toolkit.version}</version>
+				</dependency>
+			</dependencies>
 		</profile>
 	</profiles>
 
@@ -242,9 +308,4 @@
 			</releases>
 		</repository>
 	</repositories>
-	<!-- <distributionManagement> <repository> <id>terracotta-staging</id> <name>Terracotta 
-		Staging Repository</name> <url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-staging</url> 
-		</repository> <snapshotRepository> <id>terracotta-snapshots</id> <uniqueVersion>false</uniqueVersion> 
-		<name>Terracotta Snapshots Repository</name> <url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-snapshots</url> 
-		</snapshotRepository> </distributionManagement> -->
 </project>
